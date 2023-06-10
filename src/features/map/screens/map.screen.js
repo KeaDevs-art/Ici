@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { styled } from "styled-components";
 
 import MapView, { Marker } from "react-native-maps";
@@ -19,49 +19,51 @@ const Map = styled(MapView)`
 const MapScreen = () => {
   // const [location, setLocation] = useState(null);
   const [location, setLocation] = useState({
-    latitude: -26.2172064,
-    longitude: 27.8943834,
+    // latitude: -26.2172064,
+    // longitude: 27.8943834,
   });
   //   latitude: -26.2172064,
   //     longitude: 27.8943834,
 
   useEffect(() => {
-    async () => {
+    const getPermissionAndCurrentLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         console.log("Permission to access location was denied");
         return;
       }
 
-      let local = await Location.getCurrentPositionAsync({});
-      setLocation(local);
-      const { latitude, longitude } = location.coords;
-      console.log(latitude, longitude);
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+      // console.log(location);
     };
-  }, [location]);
-
-  addLocationDataToDatabase(location.latitude, location.longitude);
+    getPermissionAndCurrentLocation();
+  }, []);
 
   return (
     <SafeArea>
-      <Map
-        region={{
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0,
-          longitudeDelta: 0.01,
-        }}
-      >
-        <Marker
-          key="minez"
-          title="minez"
-          description="minez"
-          coordinate={{
-            latitude: location.latitude,
-            longitude: location.longitude,
+      {Object.keys(location).length ? (
+        <Map
+          region={{
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0,
+            longitudeDelta: 0.01,
           }}
-        />
-      </Map>
+        >
+          <Marker
+            key="minez"
+            title="minez"
+            description="minez"
+            coordinate={{
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            }}
+          />
+        </Map>
+      ) : (
+        <Map />
+      )}
     </SafeArea>
   );
 };
